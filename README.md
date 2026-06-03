@@ -11,10 +11,11 @@ npm run dev
 
 How it works
 
-- Add your public Google Sheets to `sheets.json` with an `id`, `title`, `description`, and `url`.
+- Add your public Google Sheets to `sheets.json` as either an array of URLs or as objects containing `url`, optional `title`, and optional `description`.
+- The generator now fetches the sheet title automatically from Google and creates a better description for SEO and search.
 - Each sheet page fetches a CSV export of the public sheet and renders a simple table.
 
 Notes
 
 - For better CSV parsing and large sheets, replace the simple parser in `components/SheetTable.vue` with a robust CSV parser (e.g., `papaparse`).
-- If you prefer using the Google Sheets API and an API key, that can be added later for more control.
+- For richer metadata and sheet tab extraction, set `GOOGLE_SHEETS_API_KEY` before running `npm run generate-sheets`.
