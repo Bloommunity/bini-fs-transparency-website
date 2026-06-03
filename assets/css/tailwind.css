@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#__nuxt {
+	height: 100%;
+}
+
+body {
+	@apply bg-gradient-to-br from-white via-bini-lightTeal/10 to-bini-teal/20 text-bini-black font-sans antialiased;
+}
+
+/* Modern typography */
+@layer components {
+	.heading-1 {
+		@apply text-5xl md:text-6xl font-black tracking-tight text-bini-darkTeal;
+	}
+
+	.heading-2 {
+		@apply text-4xl md:text-5xl font-bold tracking-tight text-bini-darkTeal;
+	}
+
+	.heading-3 {
+		@apply text-2xl font-bold tracking-tight text-bini-darkTeal;
+	}
+
+	/* Modern card */
+	.card {
+		@apply rounded-xl border border-bini-teal/20 bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:border-bini-teal/40;
+	}
+
+	.card-hover {
+		@apply card hover:scale-105 hover:shadow-lg;
+	}
+
+	/* Modern button */
+	.btn-primary {
+		@apply px-6 py-3 bg-gradient-to-r from-bini-teal to-bini-lightTeal text-white rounded-lg font-bold hover:shadow-lg transition-all duration-200;
+	}
+
+	.btn-secondary {
+		@apply px-6 py-3 bg-bini-teal/10 text-bini-teal rounded-lg font-semibold hover:bg-bini-teal/20 transition-all duration-200;
+	}
+
+	/* Badge */
+	.badge {
+		@apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+	}
+
+	.badge-primary {
+		@apply inline-flex items-center gap-1 px-3 py-1 bg-bini-teal/10 text-bini-teal rounded-full text-xs font-bold;
+	}
+
+	.badge-secondary {
+		@apply badge bg-bini-teal/5 text-bini-teal;
+	}
+}
+
+/* Animations */
+@keyframes blob {
+	0%,
+	100% {
+		transform: translate(0, 0) scale(1);
+	}
+	33% {
+		transform: translate(30px, -50px) scale(1.1);
+	}
+	66% {
+		transform: translate(-20px, 20px) scale(0.9);
+	}
+}
+
+.animate-blob {
+	animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+	animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+	animation-delay: 4s;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: -1000px 0;
+	}
+	100% {
+		background-position: 1000px 0;
+	}
+}
+
+.animate-shimmer {
+	animation: shimmer 2s infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #00796b;
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #004d40;
+}
