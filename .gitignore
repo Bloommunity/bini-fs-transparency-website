@@ -12,4 +12,4 @@ dist/
 *.swo
 *~
 .DS_Store
-sheet-data.json
+sheets-data.json

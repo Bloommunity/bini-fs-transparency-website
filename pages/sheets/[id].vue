@@ -170,17 +170,6 @@
 								class="group rounded-2xl border border-bini-teal/15 bg-gradient-to-br from-bini-teal/10 to-bini-lightTeal/5 p-6 shadow-sm">
 								<p
 									class="text-xs uppercase tracking-wider font-bold text-bini-teal/80">
-									Total Amount
-								</p>
-								<p
-									class="mt-4 text-3xl font-black text-bini-darkTeal">
-									{{ formatNumber(totalAmount) }}
-								</p>
-							</div>
-							<div
-								class="group rounded-2xl border border-bini-teal/15 bg-gradient-to-br from-bini-lightTeal/10 to-bini-teal/5 p-6 shadow-sm">
-								<p
-									class="text-xs uppercase tracking-wider font-bold text-bini-teal/80">
 									Total Donations
 								</p>
 								<p
@@ -189,7 +178,7 @@
 								</p>
 							</div>
 							<div
-								class="group rounded-2xl border border-bini-teal/15 bg-gradient-to-br from-bini-teal/5 to-bini-lightTeal/10 p-6 shadow-sm">
+								class="group rounded-2xl border border-bini-teal/15 bg-gradient-to-br from-bini-lightTeal/10 to-bini-teal/5 p-6 shadow-sm">
 								<p
 									class="text-xs uppercase tracking-wider font-bold text-bini-teal/80">
 									Total Expenses
@@ -197,6 +186,17 @@
 								<p
 									class="mt-4 text-3xl font-black text-bini-darkTeal">
 									{{ formatNumber(totalExpenses) }}
+								</p>
+							</div>
+							<div
+								class="group rounded-2xl border border-bini-teal/15 bg-gradient-to-br from-bini-teal/5 to-bini-lightTeal/10 p-6 shadow-sm">
+								<p
+									class="text-xs uppercase tracking-wider font-bold text-bini-teal/80">
+									Funds Left
+								</p>
+								<p
+									class="mt-4 text-3xl font-black text-bini-darkTeal">
+									{{ formatNumber(totalFundsLeft) }}
 								</p>
 							</div>
 						</div>
@@ -271,9 +271,9 @@ const route = useRoute();
 const sheet = ref(null);
 const loadingTotals = ref(false);
 const errorTotals = ref(null);
-const totalAmount = ref(0);
 const totalDonations = ref(0);
 const totalExpenses = ref(0);
+const totalFundsLeft = ref(0);
 
 const pageTitle = computed(() =>
 	sheet.value
@@ -362,6 +362,15 @@ const scanLabelTotals = (lines) => {
 			patterns: [/total\s*amount/i, /^amount$/i, /amounts?/i],
 		},
 		{
+			key: "fundsLeft",
+			patterns: [
+				/total\s*funds\s*left/i,
+				/funds\s*left/i,
+				/remaining\s*funds/i,
+				/net\s*funds/i,
+			],
+		},
+		{
 			key: "donations",
 			patterns: [
 				/total\s*donat/i,
@@ -382,7 +391,12 @@ const scanLabelTotals = (lines) => {
 		},
 	];
 
-	const found = { amount: null, donations: null, expenses: null };
+	const found = {
+		amount: null,
+		fundsLeft: null,
+		donations: null,
+		expenses: null,
+	};
 
 	for (let rowIndex = 0; rowIndex < lines.length; rowIndex++) {
 		const row = lines[rowIndex];
@@ -416,9 +430,9 @@ const fetchTotals = async () => {
 	if (!sheet.value?.sheetId) return;
 	loadingTotals.value = true;
 	errorTotals.value = null;
-	totalAmount.value = 0;
 	totalDonations.value = 0;
 	totalExpenses.value = 0;
+	totalFundsLeft.value = 0;
 
 	try {
 		const params = { sheetId: sheet.value.sheetId };
@@ -434,15 +448,15 @@ const fetchTotals = async () => {
 		if (
 			labelTotals.donations !== null ||
 			labelTotals.expenses !== null ||
-			labelTotals.amount !== null
+			labelTotals.amount !== null ||
+			labelTotals.fundsLeft !== null
 		) {
 			totalDonations.value = labelTotals.donations || 0;
 			totalExpenses.value = labelTotals.expenses || 0;
-			if (labelTotals.amount === null) {
-				totalAmount.value = totalDonations.value + totalExpenses.value;
-			} else {
-				totalAmount.value = labelTotals.amount;
-			}
+			totalFundsLeft.value =
+				labelTotals.fundsLeft != null
+					? labelTotals.fundsLeft
+					: totalDonations.value - totalExpenses.value;
 			return;
 		}
 
@@ -479,20 +493,30 @@ const fetchTotals = async () => {
 			"spent",
 			"expenditure",
 		]);
+		const fundsIdx = findHeaderIndex(headers, [
+			"funds left",
+			"funds_left",
+			"funds",
+			"balance",
+			"remaining",
+			"available",
+		]);
 
 		let sumAmount = 0;
 		let sumDon = 0;
 		let sumExp = 0;
+		let sumFunds = 0;
 
 		rows.forEach((row) => {
 			if (amountIdx >= 0) sumAmount += toNumber(row[amountIdx]);
 			if (donIdx >= 0) sumDon += toNumber(row[donIdx]);
 			if (expIdx >= 0) sumExp += toNumber(row[expIdx]);
+			if (fundsIdx >= 0) sumFunds += toNumber(row[fundsIdx]);
 		});
 
 		totalDonations.value = sumDon;
 		totalExpenses.value = sumExp;
-		totalAmount.value = amountIdx >= 0 ? sumAmount : sumDon + sumExp;
+		totalFundsLeft.value = fundsIdx >= 0 ? sumFunds : sumDon - sumExp;
 	} catch (err) {
 		console.error("Failed to fetch totals:", err);
 		errorTotals.value = String(err);
